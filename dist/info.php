@@ -106,7 +106,7 @@ $conn->close();
                         <div>
                             <p class=" text-xs">Dni</p>
                             <p class=" text-lg">
-                                <?php echo htmlspecialchars($user["documento"]); ?>
+                                <?php echo htmlspecialchars($user["documento"]  ?? "--"); ?>
                             </p>
                         </div>
                     </div>
@@ -122,7 +122,7 @@ $conn->close();
                         <div>
                             <p class=" text-xs">Genero</p>
                             <p class="text-lg">
-                                <?php echo htmlspecialchars($user["sexo"]); ?>
+                                <?php echo htmlspecialchars($user["sexo"]  ?? "--"); ?>
                             </p>
                         </div>
                     </div>
@@ -143,7 +143,7 @@ $conn->close();
                         <div>
                             <p class=" text-xs">Telefono</p>
                             <p class="text-lg">
-                                <?php echo htmlspecialchars($user["telefono"]); ?>
+                                <?php echo htmlspecialchars($user["telefono"]  ?? "--"); ?>
                             </p>
                         </div>
                     </div>
@@ -163,7 +163,7 @@ $conn->close();
                         <div>
                             <p class=" text-xs">F. de Nacimiento</p>
                             <p class="text-lg">
-                                <?php echo htmlspecialchars($user["nacimiento"]); ?>
+                                <?php echo htmlspecialchars($user["nacimiento"]  ?? "--"); ?>
                             </p>
                         </div>
                     </div>
@@ -330,7 +330,7 @@ $conn->close();
                     <div class="border border-gray-200 p-2">
                         <p class="font-bold">Contacto de Emergencia</p>
                         <p class="text-gray-400">
-                            <?php echo htmlspecialchars(explode(" ", $user["nombre_emer"])[0] . " " . explode(" ", $user["apellido_emer"])[0]); ?>
+                            <?php echo htmlspecialchars(explode(" ", $user["nombre_emer"])[0]  ?? "--" . " " . explode(" ", $user["apellido_emer"])[0]  ?? "--"); ?>
                         </p>
                         <div class="grid grid-cols-2">
                             <div class="text-white">
@@ -382,7 +382,7 @@ $conn->close();
 
                 <div class="grid grid-cols-2">
                     <div class="flex ">
-                        <a href="" class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600  m-2 w-full">
+                        <a class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600  m-2 w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-6" fill="#000">
                                 <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7
                                      0-32-14.3-32-32L224 0 64 0zM256 0l0 128 128 0L256 0zM216 232l0 102.1 31-31c9.4-9.4 24.6-9.4 33.9
@@ -394,7 +394,7 @@ $conn->close();
                     </div>
 
                     <div class="flex">
-                        <a href="" class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600 m-2 w-full">
+                        <a class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600 m-2 w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-6" fill="#000">
                                 <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7
                                      0-32-14.3-32-32L224 0 64 0zM256 0l0 128 128 0L256 0zM216 232l0 102.1 31-31c9.4-9.4 24.6-9.4 33.9
@@ -463,6 +463,41 @@ $conn->close();
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+
+    <script>
+        document.getElementById('sendLocation').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocationToWhatsApp, showError);
+            } else {
+                alert('La geolocalización no es soportada por este navegador.');
+            }
+        });
+
+        function sendLocationToWhatsApp(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var phoneNumber = "51952172143"; // Reemplaza con el número de teléfono al que quieres enviar el mensaje (con código de país, sin signos de "+" ni espacios)
+            var whatsappMessage = `https://wa.me/${phoneNumber}?text=Mi%20ubicación%20actual%20es:%20https://www.google.com/maps?q=${latitude},${longitude}`;
+            window.open(whatsappMessage, '_blank');
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("El usuario ha denegado la solicitud de geolocalización.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("La información de la ubicación no está disponible.");
+                    break;
+                case error.TIMEOUT:
+                    alert("La solicitud para obtener la ubicación ha expirado.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("Ha ocurrido un error desconocido.");
+                    break;
+            }
+        }
+    </script>
 
 </body>
 
