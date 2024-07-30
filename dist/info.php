@@ -1,3 +1,47 @@
+<?php
+// Conexión a la base de datos
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "roxana";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Verificar conexión
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Obtener el ID del usuario desde la solicitud GET y validarlo
+$user_id = $_GET['dni'];
+if (!is_numeric($user_id)) {
+    die("Invalid user ID");
+}
+
+// Consulta a la base de datos usando consultas preparadas
+$sql = "SELECT * FROM users WHERE documento = ?";
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    $stmt->bind_param("s", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Verificar si se encontraron resultados
+    if ($result->num_rows > 0) {
+        // Obtener datos del usuario
+        $user = $result->fetch_assoc();
+    } else {
+        die("No se encontraron resultados para el ID de usuario ingresado.");
+    }
+
+    $stmt->close();
+} else {
+    die("Error preparando la consulta: " . $conn->error);
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,29 +50,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PID - Pulsera de Identificacion</title>
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-        integrity="sha512-Fo3rlrZj/k7ujTnHqT9Hi0WxfQyZjK3+1bF7/5Z1eF13fS3VQgWIpFF2gjc+2a2U3FgptwLw1So4sc3fpEYfBw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHqT9Hi0WxfQyZjK3+1bF7/5Z1eF13fS3VQgWIpFF2gjc+2a2U3FgptwLw1So4sc3fpEYfBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
-
-
 
 </head>
 
 <body>
-
-
     <section class="bg-gray-100 dark:bg-gray-900">
         <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6 ">
             <div class="mx-auto text-center mb-8 lg:mb-16 flex justify-center">
-                <img src="../src/logo-horizontal.svg" alt="" width="600px">
+                <a href="index.html">
+                    <img src="../src/logo-horizontal.svg" alt="" width="600px">
+                </a>
             </div>
 
             <hr>
@@ -44,10 +82,12 @@
                     <p class=" text-xl m-4 font-bold">Información del Pasajero</p>
                 </div>
                 <div class="flex flex-col items-center justify-center mx-auto">
-                    <img class="w-40 rounded-lg"
-                        src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                        alt="Bonnie Avatar">
-                    <p class="mt-4 text-2xl">Ramirez Pedro</p>
+                    <img class="w-40 rounded-lg" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png" alt="Bonnie Avatar">
+                    <p class="mt-4 text-2xl">
+                    </p>
+                    <p class='mt-4 text-2xl'>
+                        <?php echo htmlspecialchars(explode(" ", $user["name"])[0] . " " . explode(" ", $user["apellidos"])[0]); ?>
+                    </p>
                 </div>
 
                 <hr class="my-4">
@@ -56,8 +96,7 @@
                     <div class="flex flex-row items-center gap-2">
                         <div class=" bg-gray-200 p-2 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class=" w-4">
-                                <path
-                                    d="M0 96l576 0c0-35.3-28.7-64-64-64L64 32C28.7 32 0 60.7 0 96zm0 32L0 416c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7
+                                <path d="M0 96l576 0c0-35.3-28.7-64-64-64L64 32C28.7 32 0 60.7 0 96zm0 32L0 416c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7
                                      64-64l0-288L0 128zM64 405.3c0-29.5 23.9-53.3 53.3-53.3l117.3 0c29.5 0 53.3 23.9 53.3 53.3c0 5.9-4.8 10.7-10.7 10.7L74.7
                                       416c-5.9 0-10.7-4.8-10.7-10.7zM176 192a64 64 0 1 1 0 128 64 64 0 1 1 0-128zm176 16c0-8.8 7.2-16 16-16l128 0c8.8 0 16
                                        7.2 16 16s-7.2 16-16 16l-128 0c-8.8 0-16-7.2-16-16zm0 64c0-8.8 7.2-16 16-16l128 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-128
@@ -66,22 +105,25 @@
                         </div>
                         <div>
                             <p class=" text-xs">Dni</p>
-                            <p class=" text-lg">71655501</p>
+                            <p class=" text-lg">
+                                <?php echo htmlspecialchars($user["documento"]); ?>
+                            </p>
                         </div>
                     </div>
                     <div class="flex flex-row items-center gap-2">
                         <div class="bg-gray-200 p-2 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4">
 
-                                <path
-                                    d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM164.1 325.5C182 346.2 212.6 368 256 368s74-21.8 91.9-42.5c5.8-6.7 15.9-7.4
+                                <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM164.1 325.5C182 346.2 212.6 368 256 368s74-21.8 91.9-42.5c5.8-6.7 15.9-7.4
                                      22.6-1.6s7.4 15.9 1.6 22.6C349.8 372.1 311.1 400 256 400s-93.8-27.9-116.1-53.5c-5.8-6.7-5.1-16.8 1.6-22.6s16.8-5.1 22.6 1.6zM144.4
                                       208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
                             </svg>
                         </div>
                         <div>
                             <p class=" text-xs">Genero</p>
-                            <p class="text-lg">Masculino</p>
+                            <p class="text-lg">
+                                <?php echo htmlspecialchars($user["sexo"]); ?>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -91,8 +133,7 @@
                         <div class="bg-gray-200 p-2 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4">
 
-                                <path
-                                    d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8
+                                <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8
                                      192a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24
                                       24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3 39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6
                                        46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28 23.2 47.4l-24 88C481.8
@@ -101,7 +142,9 @@
                         </div>
                         <div>
                             <p class=" text-xs">Telefono</p>
-                            <p class="text-lg">999 888 777</p>
+                            <p class="text-lg">
+                                <?php echo htmlspecialchars($user["telefono"]); ?>
+                            </p>
                         </div>
                     </div>
                     <div class="flex flex-row items-center gap-2">
@@ -119,11 +162,15 @@
                         </div>
                         <div>
                             <p class=" text-xs">F. de Nacimiento</p>
-                            <p class="text-lg">04 / Feb / 2001</p>
+                            <p class="text-lg">
+                                <?php echo htmlspecialchars($user["nacimiento"]); ?>
+                            </p>
                         </div>
                     </div>
                 </div>
-                <a href="perfil.html" class="bg-red-700  text-white py-3 px-6 block text-center mt-4 rounded-xl hover:bg-sky-950">
+
+                <a href="perfil.php?dni=<?php echo htmlspecialchars($user['documento']); ?>" 
+                class="bg-red-700  text-white py-3 px-6 block text-center mt-4 rounded-xl hover:bg-sky-950">
                     Ver Perfil Completo
                 </a>
             </div>
@@ -153,10 +200,8 @@
                         </div>
                         <div>
                             <a href="tel:911" class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4"
-                                    fill="#fff">
-                                    <path
-                                        d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4" fill="#fff">
+                                    <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
                                          32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3
                                           39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28
                                            23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z" />
@@ -172,8 +217,7 @@
                         <div>
                             <a href="#" class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" fill="#fff">
-                                    <path
-                                        d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
+                                    <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
                                          32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3
                                           39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28
                                            23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z" />
@@ -189,8 +233,7 @@
                         <div>
                             <a href="tel:911" class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" fill="#fff">
-                                    <path
-                                        d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
+                                    <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
                                          32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3
                                           39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28
                                            23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z" />
@@ -226,8 +269,7 @@
                         <div class="grid grid-cols-2">
                             <div class="text-white">
                                 <a href="" class="flex flex-col items-center py-4 rounded-xl bg-green-400 m-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4"
-                                        fill="#fff">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4" fill="#fff">
                                         <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27
                                              106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72
                                               359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5
@@ -241,10 +283,8 @@
                             </div>
                             <div class="text-white">
                                 <a href="" class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4"
-                                        fill="#fff">
-                                        <path
-                                            d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" fill="#fff">
+                                        <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
                                              32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3
                                               39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28
                                                23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z" />
@@ -260,10 +300,8 @@
                         <p class="text-gray-400">Sandra Quispe</p>
                         <div class="grid grid-cols-2">
                             <div class="text-white">
-                                <a href="https://wa.me/51993540492"
-                                    class="flex flex-col items-center py-4 rounded-xl bg-green-400 m-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4"
-                                        fill="#fff">
+                                <a href="https://wa.me/51993540492" class="flex flex-col items-center py-4 rounded-xl bg-green-400 m-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4" fill="#fff">
                                         <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27
                                              106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72
                                               359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5
@@ -276,12 +314,9 @@
                                 </a>
                             </div>
                             <div class="text-white">
-                                <a href="tel:993540492"
-                                    class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4"
-                                        fill="#fff">
-                                        <path
-                                            d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
+                                <a href="tel:993540492" class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" fill="#fff">
+                                        <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
                                              32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3
                                               39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28
                                                23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z" />
@@ -294,12 +329,14 @@
 
                     <div class="border border-gray-200 p-2">
                         <p class="font-bold">Contacto de Emergencia</p>
-                        <p class="text-gray-400">Nombre de Apoderado</p>
+                        <p class="text-gray-400">
+                            <?php echo htmlspecialchars(explode(" ", $user["nombre_emer"])[0] . " " . explode(" ", $user["apellido_emer"])[0]); ?>
+                        </p>
                         <div class="grid grid-cols-2">
                             <div class="text-white">
-                                <a href="#" class="flex flex-col items-center py-4 rounded-xl bg-green-400 m-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4"
-                                        fill="#fff">
+
+                                <a href="https://wa.me/<?php echo htmlspecialchars("51" . $user["celular_emer"]); ?>" class="flex flex-col items-center py-4 rounded-xl bg-green-400 m-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4" fill="#fff">
                                         <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27
                                              106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72
                                               359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5
@@ -313,10 +350,8 @@
                             </div>
                             <div class="text-white">
                                 <a href="#" class="flex flex-col items-center py-4 rounded-xl bg-blue-600 m-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4"
-                                        fill="#fff">
-                                        <path
-                                            d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" fill="#fff">
+                                        <path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32
                                              32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3
                                               39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28
                                                23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z" />
@@ -347,10 +382,9 @@
 
                 <div class="grid grid-cols-2">
                     <div class="flex ">
-                        <a href="" class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600  m-2 w-full" >
+                        <a href="" class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600  m-2 w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-6" fill="#000">
-                                <path
-                                    d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7
+                                <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7
                                      0-32-14.3-32-32L224 0 64 0zM256 0l0 128 128 0L256 0zM216 232l0 102.1 31-31c9.4-9.4 24.6-9.4 33.9
                                       0s9.4 24.6 0 33.9l-72 72c-9.4 9.4-24.6 9.4-33.9 0l-72-72c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9
                                        0l31 31L168 232c0-13.3 10.7-24 24-24s24 10.7 24 24z" />
@@ -362,8 +396,7 @@
                     <div class="flex">
                         <a href="" class="flex flex-col items-center py-4 rounded-xl border-2 border-gray-600 m-2 w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-6" fill="#000">
-                                <path
-                                    d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7
+                                <path d="M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-288-128 0c-17.7
                                      0-32-14.3-32-32L224 0 64 0zM256 0l0 128 128 0L256 0zM216 232l0 102.1 31-31c9.4-9.4 24.6-9.4 33.9
                                       0s9.4 24.6 0 33.9l-72 72c-9.4 9.4-24.6 9.4-33.9 0l-72-72c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9
                                        0l31 31L168 232c0-13.3 10.7-24 24-24s24 10.7 24 24z" />
@@ -380,8 +413,7 @@
 
                 <div class="flex">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4">
-                        <path
-                            d="M320 64A64 64 0 1 0 192 64a64 64 0 1 0 128 0zm-96 96c-35.3 0-64 28.7-64 64l0 48c0 17.7 14.3 32 32 32l1.8 0 11.1 99.5c1.8 16.2 15.5 28.5 31.8
+                        <path d="M320 64A64 64 0 1 0 192 64a64 64 0 1 0 128 0zm-96 96c-35.3 0-64 28.7-64 64l0 48c0 17.7 14.3 32 32 32l1.8 0 11.1 99.5c1.8 16.2 15.5 28.5 31.8
                              28.5l38.7 0c16.3 0 30-12.3 31.8-28.5L318.2 304l1.8 0c17.7 0 32-14.3 32-32l0-48c0-35.3-28.7-64-64-64l-64 0zM132.3 394.2c13-2.4 21.7-14.9
                               19.3-27.9s-14.9-21.7-27.9-19.3c-32.4 5.9-60.9 14.2-82 24.8c-10.5 5.3-20.3 11.7-27.8 19.6C6.4 399.5 0 410.5 0 424c0 21.4 15.5 36.1 29.1 45c14.7
                                9.6 34.3 17.3 56.4 23.4C130.2 504.7 190.4 512 256 512s125.8-7.3 170.4-19.6c22.1-6.1 41.8-13.8 56.4-23.4c13.7-8.9 29.1-23.6 
@@ -400,7 +432,7 @@
                             Activar GPS y Enviar ubicación
                         </p>
                         <div class="flex justify-center">
-                            <a href="" class="flex flex-col items-center py-4 rounded-xl bg-green-400 w-60">
+                            <button   id="sendLocation" class="flex flex-col items-center py-4 rounded-xl bg-green-400 w-60">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4" fill="#fff">
                                     <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3
                                          0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72
@@ -412,7 +444,7 @@
                                                4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
                                 </svg>
                                 <p class="text-white">Enviar</p>
-                            </a>
+                            </button >
                         </div>
                     </div>
 
@@ -429,8 +461,6 @@
 
         </div>
     </section>
-
-
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 
